@@ -11,13 +11,15 @@ import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
-
+import MUILink from '@material-ui/core/Link';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import {BrowserRouter as Router, Route, Link, Switch} from "react-router-dom";
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import {BrowserRouter as Router} from "react-router-dom";
-
-import { ProjectName, ProjectVersion, MenuListing, MenuSublisting, MenuSwitch, Copyright } from "../definitions/ProjectInfo";
-import logo from '../images/logo.png';
 
 const drawerWidth = 240;
 
@@ -98,7 +100,8 @@ const useStyles = makeStyles((theme) => ({
   
 }));
 
-export default function Layout() {
+export default function Layout(props) {
+  const projectInfo = props.projectInfo;
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const handleDrawerOpen = () => {
@@ -120,16 +123,45 @@ export default function Layout() {
           }}
           open={open}>
           <div className={classes.toolbarIcon}>
-            <img src={logo} className={classes.logo} alt="logo"/>
-            <h2>{ProjectName}</h2>
+            <img src={projectInfo.images.logo} className={classes.logo} alt="logo"/>
+            <h2>{projectInfo.name}</h2>
             <IconButton onClick={handleDrawerClose}>
               <ChevronLeftIcon />
             </IconButton>
           </div>
           <Divider />
-          <MenuListing />   
+          <List>  
+            {
+              projectInfo.pages.map(page => {
+                  return(
+                    <Link to={page.path}>  
+                    <ListItem button>
+                      <ListItemIcon>{page.icon}</ListItemIcon>
+                      <ListItemText primary={page.label} />
+                    </ListItem>
+                    </Link>
+                  )
+              })
+
+            }  
+          </List>
           <Divider />
-          <MenuSublisting />
+          <List>
+            <ListSubheader inset></ListSubheader>
+            {
+                projectInfo.subPages.map(page => {
+                    return(
+                      <Link to={page.path}>  
+                      <ListItem button>
+                        <ListItemIcon>{page.icon}</ListItemIcon>
+                        <ListItemText primary={page.label} />
+                      </ListItem>
+                      </Link>
+                    )
+                })
+            } 
+          </List>
+
         </Drawer>
 
         <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
@@ -154,11 +186,26 @@ export default function Layout() {
           <Container maxWidth="lg" className={classes.container}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <MenuSwitch />
+              <Switch>
+                {
+                    [projectInfo.home, ...projectInfo.pages, ...projectInfo.subPages].map(page => {
+                        return(
+                          <Route exact path={page.path}>
+                            {page.component}
+                          </Route>
+                      )
+                    })
+                } 
+              </Switch>
               </Grid>
             </Grid>
             <Box pt={4}>
-              <Copyright />
+              <Typography variant="body2" color="textSecondary" align="center">
+                {'Copyright © '}
+                <MUILink color="inherit" href={projectInfo.copyright.link}>
+                  {projectInfo.copyright.label}
+                </MUILink>
+              </Typography>
             </Box>
           </Container>
         </main>

@@ -1,14 +1,11 @@
 import React from 'react';
 
+import { ProjectInfo} from "./definitions/ProjectInfo";
 import Layout from './components/Layout';
-import Home from './pages/home';
-
 
 function App() {
   return (
-    <Layout>
-      <Home />
-    </Layout>
+    <Layout projectInfo={ProjectInfo} />
   );
 }
 
